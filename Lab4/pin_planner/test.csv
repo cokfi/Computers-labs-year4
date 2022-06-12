@@ -1,0 +1,78 @@
+# Copyright (C) 1991-2012 Altera Corporation
+# Your use of Altera Corporation's design tools, logic functions 
+# and other software and tools, and its AMPP partner logic 
+# functions, and any output files from any of the foregoing 
+# (including device programming or simulation files), and any 
+# associated documentation or information are expressly subject 
+# to the terms and conditions of the Altera Program License 
+# Subscription Agreement, Altera MegaCore Function License 
+# Agreement, or other applicable license agreement, including, 
+# without limitation, that your use is for the sole purpose of 
+# programming logic devices manufactured by Altera and sold by 
+# Altera or its authorized distributors.  Please refer to the 
+# applicable agreement for further details.
+
+# Quartus II 64-Bit Version 12.1 Build 177 11/07/2012 SJ Web Edition
+# File: C:\Users\kfir\Documents\GitHub\CompLabs\Lab4\pin_planner\test.csv
+# Generated on: Tue Jun 07 17:47:33 2022
+
+# Note: The column header names should not be changed if you wish to import this .csv file into the Quartus II software.
+
+To,Direction,Location,I/O Bank,VREF Group,I/O Standard,Reserved,Current Strength,Differential Pair
+ALUFNredLeds9to5[4],Output,PIN_R17,6,B6_N1,,,,
+ALUFNredLeds9to5[3],Output,PIN_R18,6,B6_N0,,,,
+ALUFNredLeds9to5[2],Output,PIN_U18,6,B6_N1,,,,
+ALUFNredLeds9to5[1],Output,PIN_Y18,6,B6_N1,,,,
+ALUFNredLeds9to5[0],Output,PIN_V19,6,B6_N1,,,,
+ALUoutGreenLeds[7],Output,PIN_Y21,6,B6_N1,,,,
+ALUoutGreenLeds[6],Output,PIN_Y22,6,B6_N1,,,,
+ALUoutGreenLeds[5],Output,PIN_W21,6,B6_N1,,,,
+ALUoutGreenLeds[4],Output,PIN_W22,6,B6_N1,,,,
+ALUoutGreenLeds[3],Output,PIN_V21,6,B6_N1,,,,
+ALUoutGreenLeds[2],Output,PIN_V22,6,B6_N1,,,,
+ALUoutGreenLeds[1],Output,PIN_U21,6,B6_N1,,,,
+ALUoutGreenLeds[0],Output,PIN_U22,6,B6_N1,,,,
+CflagRedLed1,Output,PIN_R19,6,B6_N0,,,,
+clock,Input,PIN_L1,2,B2_N1,,,,
+enableALUFNkey1,Input,PIN_R21,6,B6_N0,,,,
+enableXkey2,Input,PIN_T22,6,B6_N0,,,,
+enableYkey0,Input,PIN_R22,6,B6_N0,,,,
+NflagRedLed0,Output,PIN_R20,6,B6_N0,,,,
+rst,Input,PIN_L2,2,B2_N1,,,,
+switches[7],Input,PIN_M2,1,B1_N0,,,,
+switches[6],Input,PIN_U11,8,B8_N0,,,,
+switches[5],Input,PIN_U12,8,B8_N0,,,,
+switches[4],Input,PIN_W12,7,B7_N1,,,,
+switches[3],Input,PIN_V12,7,B7_N1,,,,
+switches[2],Input,PIN_M22,6,B6_N0,,,,
+switches[1],Input,PIN_L21,5,B5_N1,,,,
+switches[0],Input,PIN_L22,5,B5_N1,,,,
+XvectorHex0[6],Output,PIN_E2,2,B2_N1,,,,
+XvectorHex0[5],Output,PIN_F1,2,B2_N1,,,,
+XvectorHex0[4],Output,PIN_F2,2,B2_N1,,,,
+XvectorHex0[3],Output,PIN_H1,2,B2_N1,,,,
+XvectorHex0[2],Output,PIN_H2,2,B2_N1,,,,
+XvectorHex0[1],Output,PIN_J1,2,B2_N1,,,,
+XvectorHex0[0],Output,PIN_J2,2,B2_N1,,,,
+XvectorHex1[6],Output,PIN_D1,2,B2_N0,,,,
+XvectorHex1[5],Output,PIN_D2,2,B2_N0,,,,
+XvectorHex1[4],Output,PIN_G3,2,B2_N0,,,,
+XvectorHex1[3],Output,PIN_H4,2,B2_N0,,,,
+XvectorHex1[2],Output,PIN_H5,2,B2_N0,,,,
+XvectorHex1[1],Output,PIN_H6,2,B2_N0,,,,
+XvectorHex1[0],Output,PIN_E1,2,B2_N1,,,,
+YvectorHex2[6],Output,PIN_D3,2,B2_N0,,,,
+YvectorHex2[5],Output,PIN_E4,2,B2_N0,,,,
+YvectorHex2[4],Output,PIN_E3,2,B2_N0,,,,
+YvectorHex2[3],Output,PIN_C1,2,B2_N0,,,,
+YvectorHex2[2],Output,PIN_C2,2,B2_N0,,,,
+YvectorHex2[1],Output,PIN_G6,2,B2_N0,,,,
+YvectorHex2[0],Output,PIN_G5,2,B2_N0,,,,
+YvectorHex3[6],Output,PIN_D4,2,B2_N0,,,,
+YvectorHex3[5],Output,PIN_F3,2,B2_N0,,,,
+YvectorHex3[4],Output,PIN_L8,2,B2_N1,,,,
+YvectorHex3[3],Output,PIN_J4,2,B2_N1,,,,
+YvectorHex3[2],Output,PIN_D6,2,B2_N0,,,,
+YvectorHex3[1],Output,PIN_D5,2,B2_N0,,,,
+YvectorHex3[0],Output,PIN_F4,2,B2_N0,,,,
+ZflagRedLed2,Output,PIN_U19,6,B6_N1,,,,
