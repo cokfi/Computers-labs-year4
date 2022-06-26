@@ -49,10 +49,10 @@ ARCHITECTURE behavior OF execute IS
 -----------------------------------------------
 SIGNAL Ainput, Binput 							 : STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 SIGNAL ALUpreliminaryOutput						 : STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-signal mult_before_cut      					 : STD_LOGIC_VECTOR( 63 DOWNTO 0 ); -- multiplication result before cutting the vector to 32 bits
-SIGNAL BranchAddress 			                	 : STD_LOGIC_VECTOR( 7 DOWNTO 0 );
+signal multiplicationBeforeCut      			 : STD_LOGIC_VECTOR( 63 DOWNTO 0 ); -- multiplication result before cutting the vector to 32 bits
+SIGNAL BranchAddress 			                 : STD_LOGIC_VECTOR( 7 DOWNTO 0 );
 SIGNAL ALUctl									 : STD_LOGIC_VECTOR( 3 DOWNTO 0 );
-SIGNAL bne_cond,beq_cond						 : STD_LOGIC;
+SIGNAL bneCondition,beqCondition				 : STD_LOGIC;
 signal isALUoutputZero							 : STD_LOGIC;
 Alias  shamt                					 : STD_LOGIC_VECTOR(4 downto 0) is Sign_extend(10 downto 6);
 
@@ -72,10 +72,10 @@ BinputMux:	Binput <= Read_data_2 when  ALUSrc = '0'
 -----------------------------------------------
 -- Generate branch control
 -----------------------------------------------		
-	bne_cond <= isALUoutputZero 		when ALUoperation = "11010" ELSE '0' ;--branch not equal condition;
-	beq_cond <= not (isALUoutputZero) 	when ALUoperation =	"10101" ELSE '0' ; --branch equal condition;
+	bneCondition <= isALUoutputZero 		when ALUoperation = "11010" ELSE '0' ;--branch not equal condition;
+	beqCondition <= not (isALUoutputZero) 	when ALUoperation =	"10101" ELSE '0' ; --branch equal condition;
 						-- Generate branch condition
-	isBranchConditionTrue <=  bne_cond or beq_cond;
+	isBranchConditionTrue <=  bneCondition or beqCondition;
 -----------------------------------------------
 -- Generate Jr Flag and Address
 -----------------------------------------------	  
@@ -86,7 +86,7 @@ BinputMux:	Binput <= Read_data_2 when  ALUSrc = '0'
 		
 	Jr_Address <= ALUpreliminaryOutput(9 DOWNTO 2);   		
 -----------------------------------------------
--- mux: Select ALU output 
+-- mux: Select ALUresult
 -----------------------------------------------	
 
 ALUresultMux: with ALUoperation select
@@ -136,12 +136,12 @@ ALUctlMux: with ALUoperation select
 -- ALU multiplication
 -----------------------------------------------	
 
-	mult_before_cut <= Ainput*Binput;
+	multiplicationBeforeCut <= Ainput*Binput;
 
 -----------------------------------------------
 -- ALU's heart
 -----------------------------------------------		
-PROCESS ( ALUctl, Ainput, Binput, shamt, mult_before_cut )
+PROCESS ( ALUctl, Ainput, Binput, shamt, multiplicationBeforeCut )
 	BEGIN
 					-- Select ALU operation
  	CASE ALUctl IS
@@ -150,7 +150,7 @@ PROCESS ( ALUctl, Ainput, Binput, shamt, mult_before_cut )
 						-- ALU performs Shift right, srl
 		WHEN "0001" 	=>	ALUpreliminaryOutput 	<= std_logic_vector(SHR(unsigned(Binput),unsigned(shamt))); -- shift right shamt times
 						-- ALU performs mult
-	 	WHEN "0010" 	=>	ALUpreliminaryOutput 	<= mult_before_cut(31 downto 0);
+	 	WHEN "0010" 	=>	ALUpreliminaryOutput 	<= multiplicationBeforeCut(31 downto 0);
 						-- ALU performs add, add/move/jal
  	 	WHEN "0011" 	=>	ALUpreliminaryOutput 	<= Ainput + Binput;
 						-- ALU performs sub, sub/slt/slti/beq

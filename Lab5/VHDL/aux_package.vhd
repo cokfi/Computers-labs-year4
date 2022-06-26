@@ -33,6 +33,22 @@ ENTITY control IS
 	);
 
 END component;
-----------------------------execute-------------------------------	
+----------------------------execute-------------------------------
+ENTITY  execute IS
+	PORT(	Read_data_1 			: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 ); -- data from register R[Ra]
+			Read_data_2 			: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 ); -- data from register R[Rb]
+			Sign_extend 			: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+			Function_opcode 		: IN 	STD_LOGIC_VECTOR( 5 DOWNTO 0 );
+			ALUoperation  			: IN 	STD_LOGIC_VECTOR( 2 DOWNTO 0 ); -- selector from control unit 
+			ALUSrc 					: IN 	STD_LOGIC; 						-- selector from control unit
+			PC_plus_4 				: IN 	STD_LOGIC_VECTOR( 9 DOWNTO 0 );
+			clock, reset			: IN 	STD_LOGIC; 
+			isBranchConditionTrue 	: OUT	STD_LOGIC;
+			Jr_ctl					: OUT	STD_LOGIC; 						-- jump register - control
+			Jr_Address				: OUT	STD_LOGIC_VECTOR( 7 DOWNTO 0 );	-- jump register - address		
+			ALUresult 				: OUT	STD_LOGIC_VECTOR( 31 DOWNTO 0);
+			branchAddressResult 	: OUT	STD_LOGIC_VECTOR( 7 DOWNTO 0 ) 	-- address result for branch 
+			);
+END component;	
 end aux_package;
 
