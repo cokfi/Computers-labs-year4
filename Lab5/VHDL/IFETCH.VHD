@@ -22,8 +22,8 @@ END Ifetch;
 
 ARCHITECTURE behavior OF Ifetch IS
 	SIGNAL Instruction_sig 						   : STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-	SIGNAL PC, PC_plus_4,Mem_Addr 			           : STD_LOGIC_VECTOR( 9 DOWNTO 0 );
-	SIGNAL brOR4src,next_PC,Jump_Src : STD_LOGIC_VECTOR( 7 DOWNTO 0 ); -- brOR4src selected branch or pc+4 address
+	SIGNAL PC, PC_plus_4 			           : STD_LOGIC_VECTOR( 9 DOWNTO 0 );
+	SIGNAL brOR4src,next_PC,Jump_Src,Mem_Addr : STD_LOGIC_VECTOR( 7 DOWNTO 0 ); -- brOR4src selected branch or pc+4 address
 	Alias  Jump_Address                        : STD_LOGIC_VECTOR(7 downto 0) is Instruction_sig(7 downto 0);
 BEGIN
 						--ROM for Instruction Memory
@@ -32,10 +32,10 @@ inst_memory: altsyncram
 	GENERIC MAP (
 		operation_mode => "ROM",
 		width_a => 32,
-		widthad_a => 10,
+		widthad_a => 8,
 		lpm_type => "altsyncram",
 		outdata_reg_a => "UNREGISTERED",
-		init_file => "program.hex",
+		init_file => "C:\Users\kfir\Documents\VHDL\lab5\modelsim\Binary\program.hex",
 		intended_device_family => "Cyclone"
 	)
 	PORT MAP (
@@ -51,7 +51,7 @@ inst_memory: altsyncram
 		PC_out 			<= PC;
 		PC_plus_4_out 	<= PC_plus_4;
 						-- send address to inst. memory address register
-		Mem_Addr <= Next_PC&"00";
+		Mem_Addr <= Next_PC;
 						-- Adder to increment PC by 4        
       	PC_plus_4( 9 DOWNTO 2 )  <= PC( 9 DOWNTO 2 ) + 1;
        	PC_plus_4( 1 DOWNTO 0 )  <= "00";

@@ -72,7 +72,8 @@ ARCHITECTURE structure OF MIPS IS
                	Function_opcode		: IN 	STD_LOGIC_VECTOR( 5 DOWNTO 0 );
                	ALUOp 				: IN 	STD_LOGIC_VECTOR( 2 DOWNTO 0 );
                	ALUSrc 				: IN 	STD_LOGIC;
-               	Zero 				: OUT	STD_LOGIC;
+               	isBranchConditionTrue: OUT	STD_LOGIC;
+				Zero				: OUT	STD_LOGIC;
 				Mul					: IN 	STD_LOGIC;
 				jal_c			    : IN 	STD_LOGIC;
 				Jr_ctl				: OUT	STD_LOGIC;
@@ -86,7 +87,7 @@ ARCHITECTURE structure OF MIPS IS
 
 	COMPONENT dmemory
 	     PORT(	read_data 			: OUT 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-        		address 			: IN 	STD_LOGIC_VECTOR( 9 DOWNTO 0 );
+        		address 			: IN 	STD_LOGIC_VECTOR( 7 DOWNTO 0 );
         		write_data 			: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
         		MemRead, Memwrite 	: IN 	STD_LOGIC;
         		Clock,reset			: IN 	STD_LOGIC );
@@ -127,7 +128,8 @@ ARCHITECTURE structure OF MIPS IS
 	SIGNAL Branch 			: STD_LOGIC;
 	SIGNAL RegDst 			: STD_LOGIC_VECTOR( 1 DOWNTO 0 );
 	SIGNAL Regwrite 		: STD_LOGIC;
-	SIGNAL Zero 			: STD_LOGIC;
+	SIGNAL isBranchConditionTrue: STD_LOGIC;
+	SIGNAL Zero				: STD_LOGIC;
 	SIGNAL Mul 				: STD_LOGIC; -- execute multiply
 	SIGNAL jal_c 			: STD_LOGIC; -- execute multiply
 	SIGNAL Jump 			: STD_LOGIC;
@@ -157,7 +159,7 @@ BEGIN
    RegWrite_out 	<= RegWrite;
    MemWrite_out 	<= MemWrite;	
    Peri_address 	<= ALU_Result(11)&ALU_Result (4 DOWNTO 2); -- peripherial address
-   real_reset		<= not(reset);
+   real_reset		<= reset;
    MemWrite_4memory <= MemWrite and not(Peri_address(3)); -- Peri_address(3) = Address(11) means peripherial writing
    MemRead_4memory  <= MemRead and not(Peri_address(3)); -- Peri_address(3) = Address(11) means peripherial writing
   
@@ -232,7 +234,7 @@ BEGIN
 
    MEM:  dmemory
 	PORT MAP (	read_data 		=> read_data,
-				address 		=> ALU_Result (9 DOWNTO 2)&"00",-- jump memory address by 4
+				address 		=> ALU_Result (9 DOWNTO 2),-- jump memory address by 4
 				write_data 		=> DATA_BUS,
 				MemRead 		=> MemRead_4memory, 
 				Memwrite 		=> MemWrite_4memory, 

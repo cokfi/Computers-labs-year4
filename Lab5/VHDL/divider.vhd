@@ -22,7 +22,7 @@ begin
 	
 -- T_clkout = 2T_clkin
 	
-    CLKout <= q_int(0);
+    CLKout <= 	q_int(0);
 				
 end div;
 

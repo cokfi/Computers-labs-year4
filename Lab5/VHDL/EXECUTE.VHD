@@ -6,21 +6,21 @@ USE IEEE.STD_LOGIC_ARITH.ALL;
 USE IEEE.STD_LOGIC_SIGNED.ALL;
 
 ENTITY  Execute IS
-	PORT(	Read_data_1 	: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-			Read_data_2 	: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-			Sign_extend 	: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-			Function_opcode : IN 	STD_LOGIC_VECTOR( 5 DOWNTO 0 );
-			ALUOp 			: IN 	STD_LOGIC_VECTOR( 2 DOWNTO 0 );
-			ALUSrc 			: IN 	STD_LOGIC;
-			Zero 			: OUT	STD_LOGIC;
-			Mul				: IN 	STD_LOGIC;
-			jal_c			: IN 	STD_LOGIC;
-			Jr_ctl			: OUT	STD_LOGIC;
-			Jr_Address		: OUT	STD_LOGIC_VECTOR( 7 DOWNTO 0 );			
-			ALU_Result 		: OUT	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-			Add_Result 		: OUT	STD_LOGIC_VECTOR( 7 DOWNTO 0 ); -- address result for branch 
-			PC_plus_4 		: IN 	STD_LOGIC_VECTOR( 9 DOWNTO 0 );
-			clock, reset	: IN 	STD_LOGIC );
+	PORT(	Read_data_1 			: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+			Read_data_2 			: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+			Sign_extend 			: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+			Function_opcode 		: IN 	STD_LOGIC_VECTOR( 5 DOWNTO 0 );
+			ALUOp 					: IN 	STD_LOGIC_VECTOR( 2 DOWNTO 0 );
+			ALUSrc 					: IN 	STD_LOGIC;
+			isBranchConditionTrue 	: OUT	STD_LOGIC;
+			Mul						: IN 	STD_LOGIC;
+			jal_c					: IN 	STD_LOGIC;
+			Jr_ctl					: OUT	STD_LOGIC;
+			Jr_Address				: OUT	STD_LOGIC_VECTOR( 7 DOWNTO 0 );			
+			ALU_Result 				: OUT	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+			Add_Result 				: OUT	STD_LOGIC_VECTOR( 7 DOWNTO 0 ); -- address result for branch 
+			PC_plus_4 				: IN 	STD_LOGIC_VECTOR( 9 DOWNTO 0 );
+			clock, reset			: IN 	STD_LOGIC );
 END Execute;
 
 ARCHITECTURE behavior OF Execute IS
@@ -32,24 +32,24 @@ SIGNAL ALU_ctl									 : STD_LOGIC_VECTOR( 3 DOWNTO 0 );
 SIGNAL ctl_in									 : STD_LOGIC_VECTOR( 8 DOWNTO 0 ); -- ALUop with function 
 SIGNAL Adder,Sub,Or_result,And_result,Xor_result : STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 SIGNAL bne_cond,beq_cond						 : STD_LOGIC;
+signal isALUoutputZero							 : STD_LOGIC;
 Alias shamt                						 : STD_LOGIC_VECTOR(4 downto 0) is Sign_extend(10 downto 6);
 BEGIN
 
 
 	Ainput <= Read_data_1;
+	isALUoutputZero = and ALU_output_mux; --elementwise and
 						-- ALU input mux
-	Binput <= Read_data_2 
-		WHEN ( ALUSrc = '0' ) 
-  		ELSE  Sign_extend( 31 DOWNTO 0 );
+BinputMux:	Binput <= Read_data_2 
+			WHEN ( ALUSrc = '0' ) 
+  			ELSE  Sign_extend( 31 DOWNTO 0 );
 						-- Generate ALU control bits
 	ctl_in<= ALUOp&Function_opcode;
 	
-	bne_cond <= '0' when ALU_output_mux = X"00000000" ELSE '1' ;--WHEN ALUop="011" ELSE '0';
-	beq_cond <= '1' when ALU_output_mux = X"00000000" ELSE '0' ; 
+	bne_cond <= '0' when isALUoutputZero ELSE '1' ;--WHEN ALUop="011" ELSE '0';
+	beq_cond <= '1' when isALUoutputZero ELSE '0' ; 
 						-- Generate Zero Flag
-	Zero <=      bne_cond WHEN ALUop = "011" 
-			ELSE beq_cond WHEN ALUOp = "010"
-			ELSE '0';   
+	isBranchConditionTrue <=  bne_cond or beq_cond;  
 						-- Generate Jr Flag and Address
 	Jr_ctl <= '1' 
 		WHEN ctl_in = "000001000" --when the operation is jr
@@ -65,11 +65,11 @@ BEGIN
 		WHEN  ALUOp = "111" -- when the operation is slti
 		
 		ELSE		X"00000"&B"00"&PC_plus_4		
-		WHEN  jal_c='1' -- when the operation is jal
+		WHEN  ALUoperation="1001" -- when the operation is jal
 		
 		ELSE  	ALU_output_mux( 31 DOWNTO 0 );
 		
-						-- Select ALUctl
+						-- Select ALUctl TODO: make it readable/portable
 	ALU_ctl    <=	"0010" WHEN  Mul = '1'			  -- mul
 	ELSE "0000" WHEN  ctl_in = "000000000" 			  -- shift left
 	ELSE "0001" WHEN  ctl_in = "000000010" 			  -- shift right
