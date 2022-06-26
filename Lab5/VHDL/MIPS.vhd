@@ -1,4 +1,23 @@
-				-- Top Level Structural Model for MIPS Processor Core
+----------------------------------------------------------------------------------
+-- Company: BGU
+-- Engineer: Ron Tal and Kfir Cohen
+-- 
+-- Create Date:  26/06/22 
+-- Design Name:  top
+-- Module Name:  
+-- Project Name: LAB5 - CPU
+-- Target Devices: FPGA altera
+-- Tool versions: 
+-- Description: -- Top Level Structural Model for MIPS Processor Core
+-- 				including shifter adder subtractor and bitwise opearions
+-- Spec:		https://github.com/cokfi/Computers-labs-year4/tree/main/Lab5			
+-- Dependencies: 
+--
+-- Revision: 
+-- Revision 0.01 - File Created
+-- Additional Comments: 
+--
+----------------------------------------------------------------------------------				
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.STD_LOGIC_ARITH.ALL;
@@ -8,10 +27,11 @@ ENTITY MIPS IS
 	PORT( reset, clock					: IN 	STD_LOGIC; -- reset is opposite
 		-- Output important signals to pins for easy display in Simulator
 		PC								: OUT  STD_LOGIC_VECTOR( 9 DOWNTO 0 );
-		ALU_result_out, read_data_1_out, read_data_2_out, write_data_out,	
+		ALU_result_out, read_data_1_out,
+		read_data_2_out, write_data_out,	
      	Instruction_out					: OUT 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-		Branch_out, Zero_out, Memwrite_out, 
-		Regwrite_out					: OUT 	STD_LOGIC;
+		Branch_out, Zero_out,
+		Memwrite_out, Regwrite_out		: OUT 	STD_LOGIC;
 		LEDG				: OUT 	STD_LOGIC_VECTOR( 7 DOWNTO 0 ); --Green leds
 		LEDR				: OUT 	STD_LOGIC_VECTOR( 7 DOWNTO 0 ); --Red leds
 		HEX0				: OUT 	STD_LOGIC_VECTOR( 0 TO 6); 
