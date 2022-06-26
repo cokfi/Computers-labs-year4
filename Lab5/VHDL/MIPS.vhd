@@ -3,7 +3,7 @@
 -- Engineer: Ron Tal and Kfir Cohen
 -- 
 -- Create Date:  26/06/22 
--- Design Name:  top
+-- Design Name:  MIPS
 -- Module Name:  
 -- Project Name: LAB5 - CPU
 -- Target Devices: FPGA altera

@@ -17,13 +17,13 @@ ENTITY control IS
 	Branch 			: OUT 	STD_LOGIC;
 	ALUoperation 	: OUT 	STD_LOGIC_VECTOR( 3 DOWNTO 0 );
 	Jump			: OUT 	STD_LOGIC;
-	clock, reset	: IN 	STD_LOGIC );
+	);
 
 END control;
 
 ARCHITECTURE behavior OF control IS
 
-	signal  R_format, Lw, Sw, Beq, Addi, J, Jal, Xori,
+	signal  Rformat, Lw, Sw, Beq, Addi, J, Jal, Xori,
 	 		Bne, Lui, Ori, Andi, Slti, Multiply 		: STD_LOGIC;
 	signal 	ALUoperation, ALUoperationRegType 			: std_logic_vector (3 down to 0); --muxes outputs
 
@@ -32,7 +32,7 @@ BEGIN
 -- Generate operation signals using opcode
 -----------------------------------------------
 				
-	R_format 	<=  '1'  WHEN  Opcode = "000000"  ELSE '0'; -- including jr
+	Rformat 	<=  '1'  WHEN  Opcode = "000000"  ELSE '0'; -- including jr
 	Lw          <=  '1'  WHEN  Opcode = "100011"  ELSE '0';
  	Sw          <=  '1'  WHEN  Opcode = "101011"  ELSE '0';
    	Beq         <=  '1'  WHEN  Opcode = "000100"  ELSE '0';
@@ -49,23 +49,22 @@ BEGIN
 -----------------------------------------------
 -- Generate control signals using operation signals
 -----------------------------------------------
-	RegDst(0)   <=  R_format or Multiply ;
+	RegDst(0)   <=  Rformat or Multiply ;
 	RegDst(1)   <=  Jal;
 	Branch      <=  Beq or Bne;
 	MemRead 	<=  Lw ;
 	MemtoReg 	<=  Lw ;
 	MemWrite 	<=  Sw;
- 	ALUSrc  	<=  Lw OR Sw OR addi OR Xori OR Lui OR Ori OR Andi OR Slti;
-  	RegWrite 	<=  Lw OR R_format OR Multiply OR addi OR Xori OR Lui OR Ori OR Andi OR Slti OR Jal;
+ 	ALUSrc  	<=  Lw OR Sw OR addi OR Xori OR Lui OR Ori OR Andi OR Slti; -- immadiate or Lw
+  	RegWrite 	<=  Lw OR Rformat OR Multiply OR addi OR Xori OR Lui OR Ori OR Andi OR Slti OR Jal;
   	Jump        <=  J or Jal;
 
 
 -----------------------------------------------
--- muxes
+--ALU operation - reg type mux
 -----------------------------------------------
 
---ALU operation - reg type mux
-RegTypeALUopMUX:with Function_opcode select				
+RegTypeALUopMUX: with Function_opcode select				
 
 	ALUoperationRegType	<=	"00000" when "000000", -- shift left, sll
 							"00001" when "000010", -- shift right, srl
@@ -79,8 +78,11 @@ RegTypeALUopMUX:with Function_opcode select
 							"01101" when "100101", -- OR
 							"01110" when others  ;-- XOR (Function_opcode ="100110") 
 
+-----------------------------------------------
 --ALU operation mux
-RegTypeALUopMUX:with Opcode select				
+-----------------------------------------------
+
+ALUopMUX: with Opcode select				
 
 	ALUoperation	<=	"01111" when "011100", -- mul (multiplication)
 						"10000" when "001000", -- adder for addi (add immadiate)
