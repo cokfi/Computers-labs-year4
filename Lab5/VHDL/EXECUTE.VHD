@@ -1,195 +1,171 @@
---  Execute module (implements the data ALU and Branch Address Adder  
---  for the MIPS computer)
+----------------------------------------------------------------------------------
+-- Company: BGU
+-- Engineer: Ron Tal and Kfir Cohen
+-- 
+-- Create Date:  26/06/22 
+-- Design Name:  MIPS
+-- Module Name:  
+-- Project Name: LAB5 - CPU
+-- Target Devices: FPGA altera
+-- Tool versions: 
+-- Description:  Execute module, implements the ALU, arithmetic logic unit including the Branch Address computation  
+--  for the MIPS cpu.
+-- Spec:		https://github.com/cokfi/Computers-labs-year4/tree/main/Lab5			
+-- Dependencies: 
+--
+-- Revision: 
+-- Revision 0.01 - File Created
+-- Additional Comments: 
+--
+----------------------------------------------------------------------------------	
+
+
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.STD_LOGIC_ARITH.ALL;
 USE IEEE.STD_LOGIC_SIGNED.ALL;
 
-ENTITY  Execute IS
-	PORT(	Read_data_1 			: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-			Read_data_2 			: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+ENTITY  execute IS
+	PORT(	Read_data_1 			: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 ); -- data from register R[Ra]
+			Read_data_2 			: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 ); -- data from register R[Rb]
 			Sign_extend 			: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 			Function_opcode 		: IN 	STD_LOGIC_VECTOR( 5 DOWNTO 0 );
-			ALUOp 					: IN 	STD_LOGIC_VECTOR( 2 DOWNTO 0 );
-			ALUSrc 					: IN 	STD_LOGIC;
-			isBranchConditionTrue 	: OUT	STD_LOGIC;
-			Mul						: IN 	STD_LOGIC;
-			jal_c					: IN 	STD_LOGIC;
-			Jr_ctl					: OUT	STD_LOGIC;
-			Jr_Address				: OUT	STD_LOGIC_VECTOR( 7 DOWNTO 0 );			
-			ALU_Result 				: OUT	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-			Add_Result 				: OUT	STD_LOGIC_VECTOR( 7 DOWNTO 0 ); -- address result for branch 
+			ALUoperation  			: IN 	STD_LOGIC_VECTOR( 2 DOWNTO 0 ); -- selector from control unit 
+			ALUSrc 					: IN 	STD_LOGIC; 						-- selector from control unit
 			PC_plus_4 				: IN 	STD_LOGIC_VECTOR( 9 DOWNTO 0 );
-			clock, reset			: IN 	STD_LOGIC );
-END Execute;
+			clock, reset			: IN 	STD_LOGIC; 
+			isBranchConditionTrue 	: OUT	STD_LOGIC;
+			Jr_ctl					: OUT	STD_LOGIC; 						-- jump register - control
+			Jr_Address				: OUT	STD_LOGIC_VECTOR( 7 DOWNTO 0 );	-- jump register - address		
+			ALUresult 				: OUT	STD_LOGIC_VECTOR( 31 DOWNTO 0);
+			branchAddressResult 	: OUT	STD_LOGIC_VECTOR( 7 DOWNTO 0 ) 	-- address result for branch 
+			);
+END execute;
 
-ARCHITECTURE behavior OF Execute IS
+ARCHITECTURE behavior OF execute IS
+
+-----------------------------------------------
+-- signals declaration
+-----------------------------------------------
 SIGNAL Ainput, Binput 							 : STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-SIGNAL ALU_output_mux							 : STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-signal mult_before_cut      					 : STD_LOGIC_VECTOR( 63 DOWNTO 0 );
-SIGNAL Branch_Add 			                	 : STD_LOGIC_VECTOR( 7 DOWNTO 0 );
-SIGNAL ALU_ctl									 : STD_LOGIC_VECTOR( 3 DOWNTO 0 );
-SIGNAL ctl_in									 : STD_LOGIC_VECTOR( 8 DOWNTO 0 ); -- ALUop with function 
-SIGNAL Adder,Sub,Or_result,And_result,Xor_result : STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+SIGNAL ALUpreliminaryOutput						 : STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+signal mult_before_cut      					 : STD_LOGIC_VECTOR( 63 DOWNTO 0 ); -- multiplication result before cutting the vector to 32 bits
+SIGNAL BranchAddress 			                	 : STD_LOGIC_VECTOR( 7 DOWNTO 0 );
+SIGNAL ALUctl									 : STD_LOGIC_VECTOR( 3 DOWNTO 0 );
 SIGNAL bne_cond,beq_cond						 : STD_LOGIC;
 signal isALUoutputZero							 : STD_LOGIC;
-Alias shamt                						 : STD_LOGIC_VECTOR(4 downto 0) is Sign_extend(10 downto 6);
+Alias  shamt                					 : STD_LOGIC_VECTOR(4 downto 0) is Sign_extend(10 downto 6);
+
+
 BEGIN
-----------------------------------------------------------------------------
-RegTypeALUopMUX:with Function_opcode select				--ALU operation - reg type mux
 
-	ALUoperationRegType	<=	"00000" when "000000", -- shift left, sll
-							"00001" when "000010", -- shift right, srl
-							"00010" when "011000", -- X unused operation X : mult (mul is the right operation for multiplication)
-							"00011" when "100000", -- adder for ADD 
-							"01000" when "100001", -- adder for move
-							"01001" when "001000", -- adder for jr ($ra +$0)
-							"01010" when "100010", -- subtractor for Sub
-							"01011" when "101010", -- subtractor for slt
-							"01100" when "100100", -- AND 
-							"01101" when "100101", -- OR
-							"01110" when others  ;-- XOR (Function_opcode ="100110") 
-
-
-RegTypeALUopMUX:with Opcode select				--ALU operation mux
-
-	ALUoperation	<=	"01111" when "011100", -- mul (multiplication)
-						"10000" when "001000", -- adder for addi (add immadiate)
-						"10001" when "100011", -- adder for lw (load word)
-						"10010" when "101011", -- adder for sw (store word)
-						"10011" when "101011", -- adder for j (jump)
-						"10100" when "000011", -- adder for jal (jump and link) 
-						"10101" when "000100", -- subtractor for beq (branch equal)
-						"10110" when "001010", -- subtractor for slti (set less than immadiate)
-						"10111" when "001100", -- AND for andi (and immadiate) 
-						"11000" when "001101", -- OR for ori (or immadiate)
-						"11001" when "001110", -- XOR for xori (xor immadiate)
-						"11010" when "000101", -- XOR for bne (branch not equal)
-						"11011" when "001111", -- Lui (load upper immadiate)
-						ALUoperationRegType when others  ;-- Reg Type operation opcode = "000000"
------------------------------------------	
+-----------------------------------------------
+-- operands assignment and mux
+-----------------------------------------------	
 	Ainput <= Read_data_1;
-	isALUoutputZero = and(ALU_output_mux) ; --elementwise and
-						-- ALU input mux
+	isALUoutputZero = and(ALUpreliminaryOutput) ; --elementwise and
+
 BinputMux:	Binput <= Read_data_2 when  ALUSrc = '0' 
-  			ELSE  Sign_extend( 31 downto 0 );
-						-- Generate ALU control bits
-	--ctl_in<= ALUOp&Function_opcode;
-	
+  			ELSE  Sign_extend( 31 downto 0 ); -- immadiate or Lw (load word)
+
+						
+-----------------------------------------------
+-- Generate branch control
+-----------------------------------------------		
 	bne_cond <= isALUoutputZero 		when ALUoperation = "11010" ELSE '0' ;--branch not equal condition;
 	beq_cond <= not (isALUoutputZero) 	when ALUoperation =	"10101" ELSE '0' ; --branch equal condition;
-						-- Generate Zero Flag
-	isBranchConditionTrue <=  bne_cond or beq_cond;  
-						-- Generate Jr Flag and Address
+						-- Generate branch condition
+	isBranchConditionTrue <=  bne_cond or beq_cond;
+-----------------------------------------------
+-- Generate Jr Flag and Address
+-----------------------------------------------	  
+
 	Jr_ctl <= '1' 
-		WHEN ctl_in = "000001000" --when the operation is jr
+		WHEN ALUoperation = "01001" --when the operation is jr
 		ELSE '0';
 		
-	Jr_Address <= ALU_output_mux(9 DOWNTO 2);   		
-		
-						-- Select ALU output        
-	ALU_result <= 	X"0000000" & B"000"  & ALU_output_mux( 31 ) 
-		WHEN  ctl_in = "000101010" -- when the operation is slt
-		
-		ELSE		X"0000000" & B"000"  & ALU_output_mux( 31 )
-		WHEN  ALUOp = "111" -- when the operation is slti
-		
-		ELSE		X"00000"&B"00"&PC_plus_4		
-		WHEN  jal_c = '1' -- when the operation is jal
-		
-		ELSE  	ALU_output_mux( 31 DOWNTO 0 );
-		
-						-- Select ALUctl TODO: make it readable/portable
-	ALU_ctl    <=	"0010" WHEN  Mul = '1'			  -- mul
-	ELSE "0000" WHEN  ctl_in = "000000000" 			  -- shift left
-	ELSE "0001" WHEN  ctl_in = "000000010" 			  -- shift right
-	ELSE "0010" WHEN  ctl_in = "000011000"			  -- mult
-	ELSE "0011" WHEN  ctl_in = "000100000"			  -- ADDER for ADD 
-	ELSE "0011" WHEN  ctl_in = "000100001"			  -- ADDER for MOVE
-	ELSE "0011" WHEN  ctl_in = "000001000"			  -- ADDER for jr ($ra +$0)
-	ELSE "0011" WHEN  ALUOp = "001"			  		  -- ADDER for addi/lw/sw/j
-	ELSE "0100" WHEN  ctl_in = "000100010"			  -- SUB for Sub
-	ELSE "0100" WHEN  ctl_in = "000101010"			  -- SUB for Slt	
-	ELSE "0100" WHEN  ALUOp = "010"			  		  -- SUB for Beq
-	ELSE "0100" WHEN  ALUOp = "111"			  		  -- SUB for Slti
-	ELSE "0101" WHEN  ctl_in = "000100100"			  -- AND for And
-	ELSE "0101" WHEN  ALUOp = "110"			  		  -- AND for Andi
-	ELSE "0110" WHEN  ctl_in = "000100101"			  -- OR for Or
-	ELSE "0110" WHEN  ALUOp = "101"			          -- OR for Ori	
-	ELSE "0111" WHEN  ctl_in = "000100110"			  -- XOR for Xor
-	ELSE "0111" WHEN  ALUOp = "011"			  		  -- XOR for xori/bne
-	ELSE "1000" WHEN  ALUOp = "100"				      -- Lui
-	ELSE "1111";									  -- unexpected error
-	
-						-- Adder to compute Branch Address
-	Branch_Add	<= PC_plus_4( 9 DOWNTO 2 ) +  Sign_extend( 7 DOWNTO 0 ) ;
-	Add_result 	<= Branch_Add( 7 DOWNTO 0 );
-		
-						-- calculate ALU mult	
+	Jr_Address <= ALUpreliminaryOutput(9 DOWNTO 2);   		
+-----------------------------------------------
+-- mux: Select ALU output 
+-----------------------------------------------	
+
+ALUresultMux: with ALUoperation select
+ 	ALUresult <= 	X"0000000" & B"000"  & ALUpreliminaryOutput( 31 ) when "101010", -- when the operation is slt
+					X"0000000" & B"000"  & ALUpreliminaryOutput( 31 ) when "001010", -- when the operation is slti
+					X"00000"&B"00"&PC_plus_4 					when "000011", -- when the operation is jal		
+					ALUpreliminaryOutput( 31 DOWNTO 0 );				when others;
+-----------------------------------------------
+-- mux: Select ALUctl 
+-----------------------------------------------
+
+ALUctlMux: with ALUoperation select
+	ALUctl    <=	"0010" when "01111", -- mul (multiplication)
+					"0000" when "00000", -- shift left, sll
+					"0001" when "00001", -- shift right, srl
+					"0010" when "00010", -- X unused operation X : mult (mul is the right operation for multiplication)
+					"0011" when "00011", -- adder for ADD 
+					"0011" when "01000", -- adder for move
+					"0011" when "01001", -- adder for jr ($ra +$0)
+					"0011" when "10000", -- adder for addi (add immadiate)
+					"0011" when "10001", -- adder for lw (load word)
+					"0011" when "10010", -- adder for sw (store word)
+					"0011" when "10011", -- adder for j (jump)
+					"0011" when "10100", -- adder for jal (jump and link) 
+					"0100" when "01010", -- subtractor for Sub
+					"0100" when "01011", -- subtractor for slt
+					"0100" when "10101", -- subtractor for beq (branch equal)
+					"0100" when "10110", -- subtractor for slti (set less than immadiate)
+					"0101" when "01100", -- AND for and
+					"0101" when "10111", -- AND for andi (and immadiate)  
+					"0110" when "01101", -- OR for or
+					"0110" when "11000", -- OR for ori (or immadiate)
+					"0111" when "01110",-- XOR for xor
+					"0111" when "11001",-- XOR for xori (xor immadiate)
+					"0111" when "11010",-- XOR for bne (branch not equal)
+					"1000" when "11011",-- Lui (load upper immadiate)
+					"1111" when others; -- unexpected error
+								  
+-----------------------------------------------
+-- Adder to compute Branch Address
+-----------------------------------------------
+						
+	BranchAddress				<= PC_plus_4( 9 DOWNTO 2 ) +  Sign_extend( 7 DOWNTO 0 ) ;
+	branchAddressResult 	<= BranchAddress( 7 DOWNTO 0 );
+
+-----------------------------------------------
+-- ALU multiplication
+-----------------------------------------------	
+
 	mult_before_cut <= Ainput*Binput;
-	
-PROCESS ( ALU_ctl, Ainput, Binput )
+
+-----------------------------------------------
+-- ALU's heart
+-----------------------------------------------		
+PROCESS ( ALUctl, Ainput, Binput, shamt, mult_before_cut )
 	BEGIN
 					-- Select ALU operation
- 	CASE ALU_ctl IS
+ 	CASE ALUctl IS
 						-- ALU performs shift left, sll
-		WHEN "0000" 	=>	ALU_output_mux 	<= std_logic_vector(SHL(unsigned(Binput),unsigned(shamt))); -- shift left shamt times
+		WHEN "0000" 	=>	ALUpreliminaryOutput 	<= std_logic_vector(SHL(unsigned(Binput),unsigned(shamt))); -- shift left shamt times
 						-- ALU performs Shift right, srl
-		WHEN "0001" 	=>	ALU_output_mux 	<= std_logic_vector(SHR(unsigned(Binput),unsigned(shamt))); -- shift right shamt times
+		WHEN "0001" 	=>	ALUpreliminaryOutput 	<= std_logic_vector(SHR(unsigned(Binput),unsigned(shamt))); -- shift right shamt times
 						-- ALU performs mult
-	 	WHEN "0010" 	=>	ALU_output_mux 	<= mult_before_cut(31 downto 0);
-						-- ALU performs add, add/move
- 	 	WHEN "0011" 	=>	ALU_output_mux <= Ainput + Binput;
-						-- ALU performs sub, sub/slt/slti/beq/jal
- 	 	WHEN "0100" 	=>	ALU_output_mux 	<= Ainput - Binput;
+	 	WHEN "0010" 	=>	ALUpreliminaryOutput 	<= mult_before_cut(31 downto 0);
+						-- ALU performs add, add/move/jal
+ 	 	WHEN "0011" 	=>	ALUpreliminaryOutput 	<= Ainput + Binput;
+						-- ALU performs sub, sub/slt/slti/beq
+ 	 	WHEN "0100" 	=>	ALUpreliminaryOutput 	<= Ainput - Binput;
 						-- ALU performs AND, and/andi
- 	 	WHEN "0101" 	=>	ALU_output_mux 	<= Ainput AND Binput; 
+ 	 	WHEN "0101" 	=>	ALUpreliminaryOutput 	<= Ainput AND Binput; 
 						-- ALU performs OR, or/ori
- 	 	WHEN "0110" 	=>	ALU_output_mux 	<= Ainput OR Binput;
+ 	 	WHEN "0110" 	=>	ALUpreliminaryOutput 	<= Ainput OR Binput;
 						-- ALU performs XOR, xor/xori/bne
- 	 	WHEN "0111" 	=>	ALU_output_mux 	<= Ainput XOR Binput;
+ 	 	WHEN "0111" 	=>	ALUpreliminaryOutput 	<= Ainput XOR Binput;
 						-- ALU performs lui, lui
-  	 	WHEN "1000" 	=>	ALU_output_mux 	<= std_logic_vector(SHL(unsigned(Binput),unsigned'(X"10"))) ;-- shift left 16 times
+  	 	WHEN "1000" 	=>	ALUpreliminaryOutput 	<= std_logic_vector(SHL(unsigned(Binput),unsigned'(X"10"))) ;-- shift left 16 times
 
- 	 	WHEN OTHERS	=>	ALU_output_mux 	<= X"00000000" ;
+ 	 	WHEN OTHERS	=>	ALUpreliminaryOutput 	<= X"00000000" ;
   	END CASE;
   END PROCESS;
   
-
 END behavior;
-
-
-
-
-
--- RegTypeALUopMUX:with Function_opcode select				--ALU operation - reg type mux
-
--- 	ALUoperationRegType	<=	"0000" when "000000", -- shift left, sll
--- 							"0001" when "000010", -- shift right, srl
--- 							"0010" when "011000", -- X unused operation X : mult (mul is the right operation for multiplication)
--- 							"0011" when "100000", -- adder for ADD 
--- 							"0011" when "100001", -- adder for move
--- 							"0011" when "001000", -- adder for jr ($ra +$0)
--- 							"0100" when "100010", -- subtractor for Sub
--- 							"0100" when "101010", -- subtractor for slt
--- 							"0101" when "100100", -- AND 
--- 							"0110" when "100101", -- OR
--- 							"0111" when others  ;-- XOR (Function_opcode ="100110") 
-
-
--- RegTypeALUopMUX:with Opcode select				--ALU operation mux
-
--- 	ALUoperation	<=	"0010" when "011100", -- mul (multiplication)
--- 						"0011" when "001000", -- adder for addi (add immadiate)
--- 						"0011" when "100011", -- adder for lw (load word)
--- 						"0011" when "101011", -- adder for sw (store word)
--- 						"0011" when "101011", -- adder for j (jump)
--- 						"0011" when "000011", -- adder for jal (jump and link) 
--- 						"0100" when "000100", -- subtractor for beq (branch equal)
--- 						"0100" when "001010", -- subtractor for slti (set less than immadiate)
--- 						"0101" when "001100", -- AND for andi (and immadiate) 
--- 						"0110" when "001101", -- OR for ori (or immadiate)
--- 						"0111" when "001110", -- XOR for xori (xor immadiate)
--- 						"0111" when "000101", -- XOR for bne (branch not equal)
--- 						"1000" when "001111", -- Lui (load upper immadiate)
--- 						ALUoperationRegType when others  ;-- Reg Type operation opcode = "000000"
