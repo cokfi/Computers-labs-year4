@@ -24,16 +24,15 @@ USE work.aux_package.all;
 ENTITY firstpipe IS
   PORT (	instruction	        : IN STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 			    PCplus4	            :	IN STD_LOGIC_VECTOR( 9  DOWNTO 0 );
-          delayedInstruction	: IN STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-			    delayedPCplus4	    :	IN STD_LOGIC_VECTOR( 9  DOWNTO 0 );
+          clock,reset         : IN  STD_LOGIC;
+          delayedInstruction	: OUT STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+			    delayedPCplus4	    :	OUT STD_LOGIC_VECTOR( 9  DOWNTO 0 )
 		); 
 END firstpipe;
 ARCHITECTURE fle OF firstpipe IS 
 
 BEGIN
 
-sevenSig: process(binaryVector)
-begin
 -----------------------------------------------
 --pipe instruction register
 -----------------------------------------------
@@ -54,6 +53,6 @@ begin
           inputVector		=>	instruction,
           outputVector	=>	delayedInstruction
     );
-end process;
+
 END fle;
 
