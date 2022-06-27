@@ -111,9 +111,17 @@ component peripherial IS
 END component;
 ----------------------------divider-------------------------------
 component divider is port (
-	CLKin : in std_logic;	 
-	CLKout : out std_logic );
+	CLKin 	: in std_logic;	 
+	CLKout 	: out std_logic );
 end component;
+----------------------------firstpipe-------------------------------
+component firstpipe IS
+  PORT (	instruction	        : IN STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+			PCplus4	            : IN STD_LOGIC_VECTOR( 9  DOWNTO 0 );
+          	delayedInstruction	: IN STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+			delayedPCplus4	    : IN STD_LOGIC_VECTOR( 9  DOWNTO 0 );
+		); 
+END component;
 
 end aux_package;
 

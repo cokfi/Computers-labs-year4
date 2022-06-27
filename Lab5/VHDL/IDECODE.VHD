@@ -5,10 +5,10 @@ USE IEEE.STD_LOGIC_ARITH.ALL;
 USE IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 ENTITY Idecode IS
-	  PORT(	read_data_1	: OUT 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-			read_data_2	: OUT 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+	  PORT(	read_data_1	: OUT 	STD_LOGIC_VECTOR( 31 DOWNTO 0 ); -- data from register R[Ra]
+			read_data_2	: OUT 	STD_LOGIC_VECTOR( 31 DOWNTO 0 ); -- data from register R[Rb]
 			Instruction : IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-			read_data 	: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+			read_data 	: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 ); -- data for writing to register file
 			ALU_result	: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 			RegWrite 	: IN 	STD_LOGIC;
 			MemtoReg 	: IN 	STD_LOGIC;
