@@ -61,11 +61,12 @@ component Idecode IS
 	  PORT(	read_data_1	: OUT 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 			read_data_2	: OUT 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 			Instruction : IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+			WriteBackRegisterAddress : IN 	STD_LOGIC_VECTOR( 4 DOWNTO 0 );
 			read_data 	: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 			ALU_result	: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 			RegWrite 	: IN 	STD_LOGIC;
 			MemtoReg 	: IN 	STD_LOGIC;
-			RegDst 		: IN 	STD_LOGIC_VECTOR( 1 DOWNTO 0 );
+			--RegDst 		: IN 	STD_LOGIC_VECTOR( 1 DOWNTO 0 );
 			Sign_extend : OUT 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 			clock,reset	: IN 	STD_LOGIC );
 END component;
@@ -118,10 +119,21 @@ end component;
 component firstpipe IS
   PORT (	instruction	        : IN STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 			PCplus4	            : IN STD_LOGIC_VECTOR( 9  DOWNTO 0 );
-          	delayedInstruction	: IN STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-			delayedPCplus4	    : IN STD_LOGIC_VECTOR( 9  DOWNTO 0 );
+			clock,reset         : IN  STD_LOGIC;
+			delayedInstruction	: OUT STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+			delayedPCplus4	    :	OUT STD_LOGIC_VECTOR( 9  DOWNTO 0 )
 		); 
 END component;
+-------------------------------reg---------------------------------
+component reg IS
+	GENERIC(
+			REGISTER_LENGTH : integer := 8
+	);
+	PORT (	clock,rst,enable: IN std_logic;
+			inputVector		: IN std_logic_vector (REGISTER_LENGTH-1 downto 0);
+			outputVector	: OUT std_logic_vector (REGISTER_LENGTH-1 downto 0)
+	);
+	END component;
 
 end aux_package;
 

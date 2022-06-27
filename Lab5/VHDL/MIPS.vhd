@@ -51,7 +51,7 @@ ENTITY MIPS IS
 		);
 END 	MIPS;
 
-ARCHITECTURE structure OF MIPS IS
+ARCHITECTURE structure OF MIPS IS 
 
 -----------------------------------------------
 -- signals declaration
@@ -64,20 +64,31 @@ ARCHITECTURE structure OF MIPS IS
 -- WB 		(write back to register file)
 -- *** signals will have prefix according to their stage ***
 
-	SIGNAL CLKout			: STD_LOGIC; -- with period 2*T_clock , the divider's output
+	SIGNAL CLKafterDivider	: STD_LOGIC; -- with period 2*T_clock , the divider's output
 	SIGNAL FetchPC_plus_4 	: STD_LOGIC_VECTOR( 9 DOWNTO 0 );
 	SIGNAL DecodePC_plus_4 	: STD_LOGIC_VECTOR( 9 DOWNTO 0 );
 	SIGNAL ExecutePC_plus_4 : STD_LOGIC_VECTOR( 9 DOWNTO 0 );
-	SIGNAL read_data_1 		: STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-	SIGNAL read_data_2 		: STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-	SIGNAL Sign_Extend 		: STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+	SIGNAL DecodeDataFromRegisterA 			: STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+	SIGNAL DecodeDataFromRegisterB	 		: STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+	SIGNAL ExecuteDataFromRegisterA 		: STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+	SIGNAL ExecuteDataFromRegisterB 		: STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+	SIGNAL DecodeSign_Extend 				: STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+	SIGNAL ExecuteSign_Extend 				: STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+	signal WBregisterAddress				: STD_LOGIC_VECTOR( 4  DOWNTO 0 );
+
 	SIGNAL Add_result 		: STD_LOGIC_VECTOR( 7 DOWNTO 0 );
 	SIGNAL ALU_result 		: STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-	SIGNAL read_data 		: STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-	SIGNAL ALUSrc 			: STD_LOGIC;
+	SIGNAL WriteBackALUresult: STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+
+	SIGNAL MemorydataFromMemoryToRegisterFile 		: STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+	SIGNAL WBdataFromMemoryToRegisterFile 		: STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+	SIGNAL DecodeALUSrc 	: STD_LOGIC;
+	SIGNAL ExecuteALUSrc 	: STD_LOGIC;
 	SIGNAL Branch 			: STD_LOGIC;
-	SIGNAL RegDst 			: STD_LOGIC_VECTOR( 1 DOWNTO 0 );
-	SIGNAL Regwrite 		: STD_LOGIC;
+	SIGNAL DecodeRegDst 	: STD_LOGIC_VECTOR( 1 DOWNTO 0 );
+	SIGNAL ExecuteRegDst 	: STD_LOGIC_VECTOR( 1 DOWNTO 0 );
+	SIGNAL WBcontrolRegWrite: STD_LOGIC;
+	SIGNAL DecodeRegWrite: STD_LOGIC;
 	SIGNAL isBranchConditionTrue: STD_LOGIC;
 	SIGNAL Jump 			: STD_LOGIC;
 	SIGNAL Jr_ctl 			: STD_LOGIC;
@@ -85,7 +96,8 @@ ARCHITECTURE structure OF MIPS IS
 	SIGNAL MemWrite 		: STD_LOGIC;
 	SIGNAL MemWrite_4memory	: STD_LOGIC;  -- MemWrite AND not peripherial writing 
 	SIGNAL MemRead_4memory	: STD_LOGIC;  -- MemRead  AND not peripherial writing 
-	SIGNAL MemtoReg 		: STD_LOGIC;
+	SIGNAL WbMemtoReg: STD_LOGIC;
+	SIGNAL DecodeMemtoReg 	: STD_LOGIC;
 	SIGNAL MemRead 			: STD_LOGIC;
 	SIGNAL ALUoperation 	: STD_LOGIC_VECTOR( 4 DOWNTO 0 );
 	SIGNAL FetchInstruction : STD_LOGIC_VECTOR( 31 DOWNTO 0 );
@@ -102,11 +114,11 @@ BEGIN
 					-- display in Simulator
    Instruction_out 	<= FetchInstruction;
    ALU_result_out 	<= ALU_result;
-   read_data_1_out 	<= read_data_1;
-   read_data_2_out 	<= read_data_2;
+   read_data_1_out 	<= dataFromRegisterA;
+   read_data_2_out 	<= dataFromRegisterB;
    Branch_out 		<= Branch;
    isBranchConditionTrue_out <= isBranchConditionTrue;
-   RegWrite_out 	<= RegWrite;
+   RegWrite_out 	<= WbRegWrite;
    MemWrite_out 	<= MemWrite;	
    Peri_address 	<= ALU_Result(11)&ALU_Result (4 DOWNTO 2); -- peripherial address
    real_reset		<= reset;
@@ -115,18 +127,26 @@ BEGIN
 -----------------------------------------------
 -- mux: reading data from memory/ALU (*unused signal*)
 -----------------------------------------------		
-	write_data_out  	<= read_data WHEN MemtoReg = '1' ELSE ALU_result;
+	write_data_out  	<= WBdataFromMemoryToRegisterFile WHEN WbMemtoReg = '1' ELSE ALU_result;
 -----------------------------------------------
 -- DATA BUS tristates
 -----------------------------------------------
 					
 					-- tristate write to memory with data_bus from register R[Rb]
-	DATA_BUS 		<= read_data_2 WHEN MemWrite = '1' 		  ELSE "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
+	DATA_BUS 		<= dataFromRegisterB WHEN MemWrite = '1' 		  ELSE "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
 
 					-- tristate read from memory with data_bus 
-	DATA_BUS		<= read_data   WHEN MemRead_4memory = '1' ELSE "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ"; 
+	--registerFileWriteData		<= WBdataFromMemoryToRegisterFile   WHEN MemRead_4memory = '1' ELSE "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ"; 
 	
-   
+-----------------------------------------------
+-- Mux: select write register address with RegDst
+-----------------------------------------------
+					
+muxWriteRegisterAddress:  write_register_address <=
+write_register_address_1  	WHEN ExecuteRegDst = "01"  -- rs is chosen	
+ELSE 	write_register_address_0 	WHEN ExecuteRegDst = "00"  -- rd is chosen				
+ElSE 	B"11111";										-- $ra is chosen
+
 -----------------------------------------------
 -- instanciations
 -----------------------------------------------  
@@ -139,9 +159,9 @@ BEGIN
 				Jump     		=> Jump,
 				Jr				=> Jr_ctl,
 				Jr_Address		=> Jr_Address,
-				isBranchConditionTrue 			=> isBranchConditionTrue,
+				isBranchConditionTrue => isBranchConditionTrue,
 				PC_out 			=> PC,        		
-				clock 			=> CLKout,  
+				clock 			=> CLKafterDivider,  
 				reset 			=> real_reset );
 
    FirstPipeInst: firstpipe
@@ -149,30 +169,32 @@ BEGIN
    				PCplus4 			=> FetchPC_plus_4,
 				delayedInstruction	=> DecodeInstruction,
 				delayedPCplus4		=> DecodePC_plus_4 --will be used at execute
+				Clock				=> CLKafterDivider,
+				reset				=> real_reset
    );
 
    ID : Idecode
-   	PORT MAP (	read_data_1 	=> read_data_1,-- data from register R[Ra]
-        		read_data_2 	=> read_data_2,-- data from register R[Rb]
-        		Instruction 	=> DecodeInstruction,
-        		read_data 		=> DATA_BUS,   -- data for writing to register file
-				ALU_result 		=> ALU_result,
-				RegWrite 		=> RegWrite,
-				MemtoReg 		=> MemtoReg,
-				RegDst 			=> RegDst,
-				Sign_extend 	=> Sign_extend,
-        		clock 			=> CLKout,  
+   	PORT MAP (	read_data_1 	=> DecodeDataFromRegisterA,-- data from register R[Ra]
+        		read_data_2 	=> DecodeDataFromRegisterB,-- data from register R[Rb]
+        		Instruction 	=> DecodeInstruction, 
+				WriteBackRegisterAddress => WBregisterAddress,-- TODO: add mux for WB reg address
+        		read_data 		=> WBdataFromMemoryToRegisterFile,   	-- data for writing to register file
+				ALU_result 		=> WriteBackALUresult,
+				RegWrite 		=> WbRegWrite,
+				MemtoReg 		=> WbMemtoReg,
+				--RegDst 			=> RegDst,
+				Sign_extend 	=> DecodeSign_extend,
+        		clock 			=> CLKafterDivider,  
 				reset 			=> real_reset 
 	);
-
 
    CTL:   control
 	PORT MAP ( 	Opcode 			=> DecodeInstruction( 31 DOWNTO 26 ),
 				Function_opcode => DecodeInstruction( 5 DOWNTO 0 ),
-				RegDst 			=> RegDst,
-				ALUSrc 			=> ALUSrc,
-				MemtoReg 		=> MemtoReg,
-				RegWrite 		=> RegWrite,
+				RegDst 			=> DecodeRegDst,
+				ALUSrc 			=> DecodeALUSrc,
+				MemtoReg 		=> DecodeMemtoReg,
+				RegWrite 		=> DecodeRegWrite,
 				MemRead 		=> MemRead,
 				MemWrite 		=> MemWrite,
 				Branch 			=> Branch,
@@ -181,33 +203,33 @@ BEGIN
 			 );
 
    EXE:  Execute
-   	PORT MAP (	Read_data_1 	=> read_data_1,
-             	Read_data_2 	=> read_data_2,
-				Sign_extend 	=> Sign_extend,
+   	PORT MAP (	Read_data_1 	=> ExecuteDataFromRegisterA,
+             	Read_data_2 	=> ExecuteDataFromRegisterB,
+				Sign_extend 	=> ExecuteSign_extend,
                 Function_opcode	=> Instruction( 5 DOWNTO 0 ),
 				ALUoperation 	=> ALUoperation,
-				ALUSrc 			=> ALUSrc,
+				ALUSrc 			=> ExecuteALUSrc,
 				isBranchConditionTrue => isBranchConditionTrue,
 				Jr_ctl			=> Jr_ctl,
 				Jr_Address		=> Jr_Address,
                 ALUresult		=> ALU_Result,
 				branchAddressResult	  => Add_Result,
 				PC_plus_4		=> ExecutePC_plus_4,
-                Clock			=> CLKout,
+                Clock			=> CLKafterDivider,
 				Reset			=> real_reset );
 
    MEM:  dmemory
-	PORT MAP (	read_data 		=> read_data,
+	PORT MAP (	read_data 		=> dataFromMemoryToRegisterFile,
 				address 		=> ALU_Result (9 DOWNTO 2),-- jump memory address by 4
-				write_data 		=> DATA_BUS,
+				write_data 		=> dataFromRegisterB,
 				MemRead 		=> MemRead_4memory, 
 				Memwrite 		=> MemWrite_4memory, 
-                clock 			=> CLKout,  
+                clock 			=> CLKafterDivider,  
 				reset 			=> real_reset );
 	
 	PERI:  peripherial
 	PORT MAP (	reset			=> real_reset,
-				clock 			=> CLKout,
+				clock 			=> CLKafterDivider,
 				MemRead 		=> MemRead,
 				MemWrite 		=> MemWrite,
 				Address			=> Peri_address,
@@ -222,5 +244,5 @@ BEGIN
 
 	DIVI:  divider
 	PORT MAP (  CLKin			=> clock,
-				CLKout			=> CLKout);
+				CLKout			=> CLKafterDivider);
 END structure;

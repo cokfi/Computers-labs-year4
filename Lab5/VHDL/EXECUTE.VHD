@@ -167,5 +167,5 @@ PROCESS ( ALUctl, Ainput, Binput, shamt, multiplicationBeforeCut )
  	 	WHEN OTHERS	=>	ALUpreliminaryOutput 	<= X"00000000" ;
   	END CASE;
   END PROCESS;
-  
+
 END behavior;
