@@ -30,7 +30,7 @@ ENTITY  execute IS
 			Read_data_2 			: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 ); -- data from register R[Rb]
 			Sign_extend 			: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 			Function_opcode 		: IN 	STD_LOGIC_VECTOR( 5 DOWNTO 0 );
-			ALUoperation  			: IN 	STD_LOGIC_VECTOR( 2 DOWNTO 0 ); -- selector from control unit 
+			ALUoperation  			: IN 	STD_LOGIC_VECTOR( 4 DOWNTO 0 ); -- selector from control unit 
 			ALUSrc 					: IN 	STD_LOGIC; 						-- selector from control unit
 			PC_plus_4 				: IN 	STD_LOGIC_VECTOR( 9 DOWNTO 0 );
 			clock, reset			: IN 	STD_LOGIC; 
@@ -63,7 +63,7 @@ BEGIN
 -- operands assignment and mux
 -----------------------------------------------	
 	Ainput <= Read_data_1;
-	isALUoutputZero = and(ALUpreliminaryOutput) ; --elementwise and
+	isALUoutputZero <= not(or(ALUpreliminaryOutput)) ; --elementwise nor
 
 BinputMux:	Binput <= Read_data_2 when  ALUSrc = '0' 
   			ELSE  Sign_extend( 31 downto 0 ); -- immadiate or Lw (load word)
@@ -72,8 +72,8 @@ BinputMux:	Binput <= Read_data_2 when  ALUSrc = '0'
 -----------------------------------------------
 -- Generate branch control
 -----------------------------------------------		
-	bneCondition <= isALUoutputZero 		when ALUoperation = "11010" ELSE '0' ;--branch not equal condition;
-	beqCondition <= not (isALUoutputZero) 	when ALUoperation =	"10101" ELSE '0' ; --branch equal condition;
+	bneCondition <= not(isALUoutputZero) 	when ALUoperation = "11010" ELSE '0' ;--branch not equal condition;
+	beqCondition <= isALUoutputZero 		when ALUoperation =	"10101" ELSE '0' ; --branch equal condition;
 						-- Generate branch condition
 	isBranchConditionTrue <=  bneCondition or beqCondition;
 -----------------------------------------------
@@ -90,10 +90,10 @@ BinputMux:	Binput <= Read_data_2 when  ALUSrc = '0'
 -----------------------------------------------	
 
 ALUresultMux: with ALUoperation select
- 	ALUresult <= 	X"0000000" & B"000"  & ALUpreliminaryOutput( 31 ) when "101010", -- when the operation is slt
-					X"0000000" & B"000"  & ALUpreliminaryOutput( 31 ) when "001010", -- when the operation is slti
-					X"00000"&B"00"&PC_plus_4 					when "000011", -- when the operation is jal		
-					ALUpreliminaryOutput( 31 DOWNTO 0 );				when others;
+ 	ALUresult <= 	X"0000000" & B"000"  & ALUpreliminaryOutput( 31 ) when "01011", -- when the operation is slt
+					X"0000000" & B"000"  & ALUpreliminaryOutput( 31 ) when "10110", -- when the operation is slti
+					X"00000"&B"00"&PC_plus_4 						  when "10100", -- when the operation is jal		
+					ALUpreliminaryOutput( 31 DOWNTO 0 )				  when others;
 -----------------------------------------------
 -- mux: Select ALUctl 
 -----------------------------------------------

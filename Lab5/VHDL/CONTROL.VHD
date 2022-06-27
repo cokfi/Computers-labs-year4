@@ -15,8 +15,8 @@ ENTITY control IS
 	MemRead 		: OUT 	STD_LOGIC;
 	MemWrite 		: OUT 	STD_LOGIC;
 	Branch 			: OUT 	STD_LOGIC;
-	ALUoperation 	: OUT 	STD_LOGIC_VECTOR( 3 DOWNTO 0 );
-	Jump			: OUT 	STD_LOGIC;
+	ALUoperation 	: OUT 	STD_LOGIC_VECTOR( 4 DOWNTO 0 );
+	Jump			: OUT 	STD_LOGIC
 	);
 
 END control;
@@ -25,7 +25,7 @@ ARCHITECTURE behavior OF control IS
 
 	signal  Rformat, Lw, Sw, Beq, Addi, J, Jal, Xori,
 	 		Bne, Lui, Ori, Andi, Slti, Multiply 		: STD_LOGIC;
-	signal 	ALUoperation, ALUoperationRegType 			: std_logic_vector (3 down to 0); --muxes outputs
+	signal 	ALUoperationRegType 			: std_logic_vector (4 downto 0); --muxes outputs
 
 BEGIN 
 -----------------------------------------------
@@ -88,7 +88,7 @@ ALUopMUX: with Opcode select
 						"10000" when "001000", -- adder for addi (add immadiate)
 						"10001" when "100011", -- adder for lw (load word)
 						"10010" when "101011", -- adder for sw (store word)
-						"10011" when "101011", -- adder for j (jump)
+						"10011" when "000010", -- adder for j (jump)
 						"10100" when "000011", -- adder for jal (jump and link) 
 						"10101" when "000100", -- subtractor for beq (branch equal)
 						"10110" when "001010", -- subtractor for slti (set less than immadiate)

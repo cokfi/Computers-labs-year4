@@ -19,6 +19,9 @@ END Idecode;
 
 
 ARCHITECTURE behavior OF Idecode IS
+-----------------------------------------------
+-- signals declaration
+-----------------------------------------------
 TYPE register_file IS ARRAY ( 0 TO 31 ) OF STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 
 	SIGNAL register_array				: register_file;
@@ -31,6 +34,9 @@ TYPE register_file IS ARRAY ( 0 TO 31 ) OF STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 	SIGNAL Instruction_immediate_value	: STD_LOGIC_VECTOR( 15 DOWNTO 0 );
 
 BEGIN
+-----------------------------------------------
+-- assignments
+-----------------------------------------------
 	read_register_1_address 	<= Instruction( 25 DOWNTO 21 );
    	read_register_2_address 	<= Instruction( 20 DOWNTO 16 );
    	write_register_address_1	<= Instruction( 15 DOWNTO 11 );
@@ -42,23 +48,32 @@ BEGIN
 					-- Read Register 2 Operation		 
 	read_data_2 <= register_array( 
 			      CONV_INTEGER( read_register_2_address ) );
-					-- Mux for Register Write Address
-   write_register_address <= write_register_address_1 
-			WHEN RegDst = "01"  			-- rs is chosen	
-			ELSE write_register_address_0   -- rd is chosen
-			WHEN RegDst = "00"				
-			ElSE B"11111";					-- $ra is chosen
-			
 
-					-- Mux to bypass data memory for Rformat instructions
-	write_data <= ALU_result( 31 DOWNTO 0 ) 
-			WHEN ( MemtoReg = '0' ) 	ELSE read_data;
-					-- Sign Extend 16-bits to 32-bits
+-----------------------------------------------
+-- Mux: select write register address with RegDst
+-----------------------------------------------
+					
+ muxWriteRegisterAddress:  write_register_address <=
+ 			 		write_register_address_1  	WHEN RegDst = "01"  -- rs is chosen	
+			ELSE 	write_register_address_0 	WHEN RegDst = "00"  -- rd is chosen				
+			ElSE 	B"11111";										-- $ra is chosen
+			
+-----------------------------------------------
+-- Mux: to bypass data memory for Rformat instructions
+-----------------------------------------------
+
+muxWriteData:	write_data <= ALU_result( 31 DOWNTO 0 ) WHEN ( MemtoReg = '0' )
+			 	ELSE 		  read_data;
+-----------------------------------------------
+-- Mux : select negative or possitive Sign Extend 16-bits to 32-bits
+-----------------------------------------------									
     	Sign_extend <= X"0000" & Instruction_immediate_value
 		WHEN Instruction_immediate_value(15) = '0'
 		ELSE	X"FFFF" & Instruction_immediate_value;
-
-PROCESS
+-----------------------------------------------
+-- Registers File
+-----------------------------------------------
+RegistersFile:PROCESS
 	BEGIN
 		WAIT UNTIL clock'EVENT AND clock = '1';
 		IF reset = '1' THEN
