@@ -24,9 +24,10 @@ USE IEEE.STD_LOGIC_ARITH.ALL;
 USE work.aux_package.all;
 
 ENTITY MIPS IS
-	generic (simulationMode: integer := 0 -- 0 for synthesis, 1 for simulation mode
-			 addressLength:	 integer := 9 -- 9 for synthesis, 7 for simulation mode
-			);
+	generic (
+		simulationMode: integer := 0; 				   -- 0 for synthesis, 1 for simulation mode
+		addressLength:	integer := 10 -2*simulationMode -- 10 for synthesis, 8 for simulation mode
+	);
 	PORT( reset, clock					: IN 	STD_LOGIC; -- reset is opposite
 		-- Output important signals to pins for easy display in Simulator
 		PC								: OUT  STD_LOGIC_VECTOR( 9 DOWNTO 0 );
@@ -50,7 +51,7 @@ ARCHITECTURE structure OF MIPS IS
 -----------------------------------------------
 -- signals declaration
 -----------------------------------------------
-
+		
 	SIGNAL CLKout			: STD_LOGIC; -- with period 2*T_clock , the divider's output
 	SIGNAL PC_plus_4 		: STD_LOGIC_VECTOR( 9 DOWNTO 0 );
 	SIGNAL read_data_1 		: STD_LOGIC_VECTOR( 31 DOWNTO 0 );
@@ -79,6 +80,7 @@ ARCHITECTURE structure OF MIPS IS
 	SIGNAL Peri_address		: STD_LOGIC_VECTOR( 3 DOWNTO 0 ); --[A11,A4,A3,A2]
 	SIGNAL Data_Bus			: STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 	signal real_reset 		: STD_LOGIC;
+	signal dmemoryAddress	: STD_LOGIC_VECTOR( addressLength-1 DOWNTO 0 ); -- length 10 for synthesis, 8 for simulation, 
 
 BEGIN
 -----------------------------------------------
@@ -96,7 +98,26 @@ BEGIN
    RegWrite_out 	<= RegWrite;
    MemWrite_out 	<= MemWrite;	
    Peri_address 	<= ALU_Result(11)&ALU_Result (4 DOWNTO 2); -- peripherial address
-   real_reset		<= reset;
+-----------------------------------------------
+-- reset: simulation active high, synthesis active low (pull up pushbutten)
+-----------------------------------------------
+	ResetForSimulation:   if simulationMode=1 generate
+		real_reset		<= reset;
+	end generate;
+
+	ResetForSynthesis:   if simulationMode!=1 generate
+		real_reset		<= not(reset);
+	end generate;
+
+	DMaddressForSimulation:   if simulationMode=1 generate
+		dmemoryAddress		<= ALU_Result (9 DOWNTO 2);   --  memory address omission is 4 (word is 4 bytes)
+	end generate;
+
+	DMaddressForSynthesis:   if simulationMode!=1 generate
+		dmemoryAddress		<= ALU_Result (9 DOWNTO 2)&"00"; --  memory address omission is 4 (word is 4 bytes)
+	end generate;
+		
+		
    MemWrite_4memory <= MemWrite and not(Peri_address(3)); -- Peri_address(3) = Address(11) means peripherial writing
    MemRead_4memory  <= MemRead and not(Peri_address(3)); -- Peri_address(3) = Address(11) means peripherial writing
   
@@ -104,7 +125,7 @@ BEGIN
 	DATA_BUS 		<= read_data_2 WHEN MemWrite = '1' 		  ELSE "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ"; -- tristate write to memory with data_bus 
 	DATA_BUS		<= read_data   WHEN MemRead_4memory = '1' ELSE "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ"; -- tristate read from memory with data_bus
 	
-   
+	
  -----------------------------------------------
 -- instanciations
 -----------------------------------------------  
@@ -168,8 +189,9 @@ BEGIN
 				Reset			=> real_reset );
 
    MEM:  dmemory
+   generic map (addressLength   => addressLength)
 	PORT MAP (	read_data 		=> read_data,
-				address 		=> ALU_Result (9 DOWNTO 2),-- jump memory address by 4
+				address 		=> dmemoryAddress,
 				write_data 		=> DATA_BUS,
 				MemRead 		=> MemRead_4memory, 
 				Memwrite 		=> MemWrite_4memory, 
