@@ -25,14 +25,18 @@ END MIPS_tb ;
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.STD_LOGIC_ARITH.ALL;
-
 LIBRARY work;
+USE work.aux_package.all;
+
+
+
 
 ARCHITECTURE struct OF MIPS_tb IS
 
    -- Architecture declarations
-
    -- Internal signal declarations
+   constant simulationMode: integer := 1;
+   constant addressLength : integer := 8; -- 10 for synthesis, 8 for simulation mode
    SIGNAL ALU_result_out  : STD_LOGIC_VECTOR( 31 DOWNTO 0 );
    SIGNAL Branch_out      : STD_LOGIC;
    SIGNAL Instruction_out : STD_LOGIC_VECTOR( 31 DOWNTO 0 );
@@ -56,29 +60,29 @@ ARCHITECTURE struct OF MIPS_tb IS
 
 	
    -- Component Declarations
-   COMPONENT MIPS
-   PORT (
-      clock           : IN     STD_LOGIC;
-      reset           : IN     STD_LOGIC;
-      ALU_result_out  : OUT    STD_LOGIC_VECTOR ( 31 DOWNTO 0 );
-      Branch_out      : OUT    STD_LOGIC;
-      Instruction_out : OUT    STD_LOGIC_VECTOR ( 31 DOWNTO 0 );
-      Memwrite_out    : OUT    STD_LOGIC;
-      PC              : OUT    STD_LOGIC_VECTOR ( 9 DOWNTO 0 );
-      Regwrite_out    : OUT    STD_LOGIC;
-      isBranchConditionTrue_out        : OUT    STD_LOGIC;
-      read_data_1_out : OUT    STD_LOGIC_VECTOR ( 31 DOWNTO 0 );
-      read_data_2_out : OUT    STD_LOGIC_VECTOR ( 31 DOWNTO 0 );
-      write_data_out  : OUT    STD_LOGIC_VECTOR ( 31 DOWNTO 0 );
-	  LEDG			  : OUT    STD_LOGIC_VECTOR( 7 DOWNTO 0 ); --Green leds
-	  LEDR			  : OUT    STD_LOGIC_VECTOR( 7 DOWNTO 0 ); --Red leds
-	  HEX0			  : OUT    STD_LOGIC_VECTOR( 0 TO 6 );
-	  HEX1			  : OUT    STD_LOGIC_VECTOR( 0 TO 6 );
-	  HEX2			  : OUT    STD_LOGIC_VECTOR( 0 TO 6 );
-	  HEX3			  : OUT    STD_LOGIC_VECTOR( 0 TO 6 );
-	  SW			  : IN 	   STD_LOGIC_VECTOR( 7 DOWNTO 0 ) -- Switches		  
-   );
-   END COMPONENT;
+   -- COMPONENT MIPS
+   -- PORT (
+   --    clock           : IN     STD_LOGIC;
+   --    reset           : IN     STD_LOGIC;
+   --    ALU_result_out  : OUT    STD_LOGIC_VECTOR ( 31 DOWNTO 0 );
+   --    Branch_out      : OUT    STD_LOGIC;
+   --    Instruction_out : OUT    STD_LOGIC_VECTOR ( 31 DOWNTO 0 );
+   --    Memwrite_out    : OUT    STD_LOGIC;
+   --    PC              : OUT    STD_LOGIC_VECTOR ( 9 DOWNTO 0 );
+   --    Regwrite_out    : OUT    STD_LOGIC;
+   --    isBranchConditionTrue_out        : OUT    STD_LOGIC;
+   --    read_data_1_out : OUT    STD_LOGIC_VECTOR ( 31 DOWNTO 0 );
+   --    read_data_2_out : OUT    STD_LOGIC_VECTOR ( 31 DOWNTO 0 );
+   --    write_data_out  : OUT    STD_LOGIC_VECTOR ( 31 DOWNTO 0 );
+	--   LEDG			  : OUT    STD_LOGIC_VECTOR( 7 DOWNTO 0 ); --Green leds
+	--   LEDR			  : OUT    STD_LOGIC_VECTOR( 7 DOWNTO 0 ); --Red leds
+	--   HEX0			  : OUT    STD_LOGIC_VECTOR( 0 TO 6 );
+	--   HEX1			  : OUT    STD_LOGIC_VECTOR( 0 TO 6 );
+	--   HEX2			  : OUT    STD_LOGIC_VECTOR( 0 TO 6 );
+	--   HEX3			  : OUT    STD_LOGIC_VECTOR( 0 TO 6 );
+	--   SW			  : IN 	   STD_LOGIC_VECTOR( 7 DOWNTO 0 ) -- Switches		  
+   -- );
+   -- END COMPONENT;
    COMPONENT MIPS_tester
    PORT (
       ALU_result_out  : IN     STD_LOGIC_VECTOR ( 31 DOWNTO 0 );
@@ -108,6 +112,10 @@ BEGIN
 
    -- Instance port mappings.
    U_0 : MIPS
+      generic map (
+      addressLength   => addressLength,
+      simulationMode	=> simulationMode
+      )
       PORT MAP (
          reset           => reset,
          clock           => clock,

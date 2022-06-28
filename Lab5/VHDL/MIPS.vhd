@@ -101,27 +101,33 @@ BEGIN
 -----------------------------------------------
 -- reset: simulation active high, synthesis active low (pull up pushbutten)
 -----------------------------------------------
-	ResetForSimulation:   if simulationMode=1 generate
+	ResetForSimulation:   if simulationMode = 1 generate
 		real_reset		<= reset;
 	end generate;
 
-	ResetForSynthesis:   if simulationMode!=1 generate
+	ResetForSynthesis:   if simulationMode = 0 generate
 		real_reset		<= not(reset);
 	end generate;
-
-	DMaddressForSimulation:   if simulationMode=1 generate
+-----------------------------------------------
+-- Dmemory address
+-----------------------------------------------
+	DMaddressForSimulation:   if simulationMode = 1 generate
 		dmemoryAddress		<= ALU_Result (9 DOWNTO 2);   --  memory address omission is 4 (word is 4 bytes)
 	end generate;
 
-	DMaddressForSynthesis:   if simulationMode!=1 generate
+	DMaddressForSynthesis:   if simulationMode = 0 generate
 		dmemoryAddress		<= ALU_Result (9 DOWNTO 2)&"00"; --  memory address omission is 4 (word is 4 bytes)
 	end generate;
-		
+-----------------------------------------------
+-- control lines for memory
+-----------------------------------------------		
 		
    MemWrite_4memory <= MemWrite and not(Peri_address(3)); -- Peri_address(3) = Address(11) means peripherial writing
    MemRead_4memory  <= MemRead and not(Peri_address(3)); -- Peri_address(3) = Address(11) means peripherial writing
-  
-					-- DATA BUS tristates
+-----------------------------------------------
+-- DATA BUS tristates
+-----------------------------------------------	
+					
 	DATA_BUS 		<= read_data_2 WHEN MemWrite = '1' 		  ELSE "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ"; -- tristate write to memory with data_bus 
 	DATA_BUS		<= read_data   WHEN MemRead_4memory = '1' ELSE "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ"; -- tristate read from memory with data_bus
 	
@@ -189,7 +195,9 @@ BEGIN
 				Reset			=> real_reset );
 
    MEM:  dmemory
-   generic map (addressLength   => addressLength)
+   generic map (addressLength   => addressLength,
+				simulationMode	=> simulationMode
+				)
 	PORT MAP (	read_data 		=> read_data,
 				address 		=> dmemoryAddress,
 				write_data 		=> DATA_BUS,

@@ -90,7 +90,8 @@ END component;
 ----------------------------Dmemory-------------------------------
 component dmemory IS
 	generic(
-			addressLength:	integer := 10  -- 10 for synthesis, 8 for simulation mode
+			addressLength:	integer := 10;  -- 10 for synthesis, 8 for simulation mode
+			simulationMode:	integer := 0	-- 0 for synthesis, 1 for simulation mode
 	);
 	PORT(	read_data 			: OUT 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
         	address 			: IN 	STD_LOGIC_VECTOR( addressLength-1 DOWNTO 0 );
