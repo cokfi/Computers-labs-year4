@@ -4,7 +4,10 @@ use ieee.std_logic_1164.all;
 package aux_package is
 ----------------------------MIPS-------------------------------
 component MIPS IS
-
+	generic (
+		simulationMode: integer := 0; 				   -- 0 for synthesis, 1 for simulation mode
+		addressLength:	integer := 10 -2*simulationMode -- 10 for synthesis, 8 for simulation mode
+	);
 	PORT( reset, clock					: IN 	STD_LOGIC; -- reset is opposite
 		-- Output important signals to pins for easy display in Simulator
 		PC								: OUT  STD_LOGIC_VECTOR( 9 DOWNTO 0 );
@@ -86,8 +89,11 @@ component Ifetch IS
 END component;
 ----------------------------Dmemory-------------------------------
 component dmemory IS
+	generic(
+			addressLength:	integer := 10  -- 10 for synthesis, 8 for simulation mode
+	);
 	PORT(	read_data 			: OUT 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-        	address 			: IN 	STD_LOGIC_VECTOR( 7 DOWNTO 0 );
+        	address 			: IN 	STD_LOGIC_VECTOR( addressLength-1 DOWNTO 0 );
         	write_data 			: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 	   		MemRead, Memwrite 	: IN 	STD_LOGIC;
             clock,reset			: IN 	STD_LOGIC );
