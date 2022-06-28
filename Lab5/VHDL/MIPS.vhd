@@ -24,7 +24,9 @@ USE IEEE.STD_LOGIC_ARITH.ALL;
 USE work.aux_package.all;
 
 ENTITY MIPS IS
-
+	generic (simulationMode: integer := 0 -- 0 for synthesis, 1 for simulation mode
+			 addressLength:	 integer := 9 -- 9 for synthesis, 7 for simulation mode
+			);
 	PORT( reset, clock					: IN 	STD_LOGIC; -- reset is opposite
 		-- Output important signals to pins for easy display in Simulator
 		PC								: OUT  STD_LOGIC_VECTOR( 9 DOWNTO 0 );
