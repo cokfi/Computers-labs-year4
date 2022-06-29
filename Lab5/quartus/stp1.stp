@@ -1,0 +1,222 @@
+<session jtag_chain="USB-Blaster [USB-0]" jtag_device="@1: EP2C(15|20) (0x020B30DD)" sof_file="E:/Programs/altera/quartus/quartus_project2/output_files/lab5_2022.sof">
+  <display_tree gui_logging_enabled="0">
+    <display_branch instance="auto_signaltap_0" signal_set="USE_GLOBAL_TEMP" trigger="USE_GLOBAL_TEMP"/>
+  </display_tree>
+  <global_info>
+    <multi attribute="jtag widget size" size="2" value="351,184"/>
+    <single attribute="hierarchy widget height" value="140"/>
+    <multi attribute="column width" size="23" value="34,34,236,74,68,70,88,88,98,98,88,88,110,101,101,101,101,101,101,101,101,107,78"/>
+    <single attribute="active instance" value="0"/>
+    <multi attribute="frame size" size="2" value="1600,821"/>
+    <single attribute="jtag widget visible" value="1"/>
+    <single attribute="instance widget visible" value="1"/>
+    <single attribute="config widget visible" value="1"/>
+    <single attribute="hierarchy widget visible" value="1"/>
+    <single attribute="data log widget visible" value="1"/>
+  </global_info>
+  <instance entity_name="sld_signaltap" is_auto_node="yes" name="auto_signaltap_0" source_file="sld_signaltap.vhd">
+    <node_ip_info instance_id="0" mfg_id="110" node_id="0" version="6"/>
+    <position_info>
+      <single attribute="active tab" value="1"/>
+      <single attribute="setup vertical scroll position" value="0"/>
+      <single attribute="setup horizontal scroll position" value="0"/>
+    </position_info>
+    <signal_set global_temp="1" name="signal_set: 2022/06/29 14:26:10  #0">
+      <clock name="clock" polarity="posedge" tap_mode="probeonly"/>
+      <config ram_type="M4K" reserved_data_nodes="0" reserved_storage_qualifier_nodes="0" reserved_trigger_nodes="0" sample_depth="4096" trigger_in_enable="no" trigger_out_enable="no"/>
+      <top_entity/>
+      <signal_vec>
+        <trigger_input_vec>
+          <wire name="reset" tap_mode="probeonly" type="input pin"/>
+        </trigger_input_vec>
+        <data_input_vec>
+          <wire name="Data_Bus[0]~8" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[10]~15" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[11]~14" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[12]~11" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[13]~10" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[14]~12" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[15]~9" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[16]~66" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[17]~63" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[18]~65" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[19]~64" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[1]~22" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[20]~72" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[21]~71" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[22]~74" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[23]~73" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[24]~60" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[25]~59" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[26]~62" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[27]~61" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[28]~70" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[29]~68" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[2]~34" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[30]~69" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[31]~67" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[3]~28" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[4]~58" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[5]~52" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[6]~46" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[7]~40" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[8]~16" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[9]~13" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="reset" tap_mode="probeonly" type="input pin"/>
+        </data_input_vec>
+        <storage_qualifier_input_vec>
+          <wire name="Data_Bus[0]~8" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[10]~15" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[11]~14" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[12]~11" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[13]~10" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[14]~12" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[15]~9" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[16]~66" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[17]~63" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[18]~65" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[19]~64" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[1]~22" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[20]~72" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[21]~71" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[22]~74" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[23]~73" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[24]~60" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[25]~59" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[26]~62" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[27]~61" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[28]~70" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[29]~68" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[2]~34" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[30]~69" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[31]~67" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[3]~28" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[4]~58" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[5]~52" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[6]~46" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[7]~40" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[8]~16" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="Data_Bus[9]~13" tap_mode="probeonly" type="combinatorial"/>
+          <wire name="reset" tap_mode="probeonly" type="input pin"/>
+        </storage_qualifier_input_vec>
+      </signal_vec>
+      <presentation>
+        <data_view>
+          <bus is_signal_inverted="no" link="all" name="Data_Bus[0..31]" order="lsb_to_msb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="Data_Bus[0]~8"/>
+            <net is_signal_inverted="no" name="Data_Bus[1]~22"/>
+            <net is_signal_inverted="no" name="Data_Bus[2]~34"/>
+            <net is_signal_inverted="no" name="Data_Bus[3]~28"/>
+            <net is_signal_inverted="no" name="Data_Bus[4]~58"/>
+            <net is_signal_inverted="no" name="Data_Bus[5]~52"/>
+            <net is_signal_inverted="no" name="Data_Bus[6]~46"/>
+            <net is_signal_inverted="no" name="Data_Bus[7]~40"/>
+            <net is_signal_inverted="no" name="Data_Bus[8]~16"/>
+            <net is_signal_inverted="no" name="Data_Bus[9]~13"/>
+            <net is_signal_inverted="no" name="Data_Bus[10]~15"/>
+            <net is_signal_inverted="no" name="Data_Bus[11]~14"/>
+            <net is_signal_inverted="no" name="Data_Bus[12]~11"/>
+            <net is_signal_inverted="no" name="Data_Bus[13]~10"/>
+            <net is_signal_inverted="no" name="Data_Bus[14]~12"/>
+            <net is_signal_inverted="no" name="Data_Bus[15]~9"/>
+            <net is_signal_inverted="no" name="Data_Bus[16]~66"/>
+            <net is_signal_inverted="no" name="Data_Bus[17]~63"/>
+            <net is_signal_inverted="no" name="Data_Bus[18]~65"/>
+            <net is_signal_inverted="no" name="Data_Bus[19]~64"/>
+            <net is_signal_inverted="no" name="Data_Bus[20]~72"/>
+            <net is_signal_inverted="no" name="Data_Bus[21]~71"/>
+            <net is_signal_inverted="no" name="Data_Bus[22]~74"/>
+            <net is_signal_inverted="no" name="Data_Bus[23]~73"/>
+            <net is_signal_inverted="no" name="Data_Bus[24]~60"/>
+            <net is_signal_inverted="no" name="Data_Bus[25]~59"/>
+            <net is_signal_inverted="no" name="Data_Bus[26]~62"/>
+            <net is_signal_inverted="no" name="Data_Bus[27]~61"/>
+            <net is_signal_inverted="no" name="Data_Bus[28]~70"/>
+            <net is_signal_inverted="no" name="Data_Bus[29]~68"/>
+            <net is_signal_inverted="no" name="Data_Bus[30]~69"/>
+            <net is_signal_inverted="no" name="Data_Bus[31]~67"/>
+          </bus>
+          <net is_signal_inverted="no" name="reset"/>
+        </data_view>
+        <setup_view>
+          <bus is_signal_inverted="no" link="all" name="Data_Bus[0..31]" order="lsb_to_msb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="Data_Bus[0]~8"/>
+            <net is_signal_inverted="no" name="Data_Bus[1]~22"/>
+            <net is_signal_inverted="no" name="Data_Bus[2]~34"/>
+            <net is_signal_inverted="no" name="Data_Bus[3]~28"/>
+            <net is_signal_inverted="no" name="Data_Bus[4]~58"/>
+            <net is_signal_inverted="no" name="Data_Bus[5]~52"/>
+            <net is_signal_inverted="no" name="Data_Bus[6]~46"/>
+            <net is_signal_inverted="no" name="Data_Bus[7]~40"/>
+            <net is_signal_inverted="no" name="Data_Bus[8]~16"/>
+            <net is_signal_inverted="no" name="Data_Bus[9]~13"/>
+            <net is_signal_inverted="no" name="Data_Bus[10]~15"/>
+            <net is_signal_inverted="no" name="Data_Bus[11]~14"/>
+            <net is_signal_inverted="no" name="Data_Bus[12]~11"/>
+            <net is_signal_inverted="no" name="Data_Bus[13]~10"/>
+            <net is_signal_inverted="no" name="Data_Bus[14]~12"/>
+            <net is_signal_inverted="no" name="Data_Bus[15]~9"/>
+            <net is_signal_inverted="no" name="Data_Bus[16]~66"/>
+            <net is_signal_inverted="no" name="Data_Bus[17]~63"/>
+            <net is_signal_inverted="no" name="Data_Bus[18]~65"/>
+            <net is_signal_inverted="no" name="Data_Bus[19]~64"/>
+            <net is_signal_inverted="no" name="Data_Bus[20]~72"/>
+            <net is_signal_inverted="no" name="Data_Bus[21]~71"/>
+            <net is_signal_inverted="no" name="Data_Bus[22]~74"/>
+            <net is_signal_inverted="no" name="Data_Bus[23]~73"/>
+            <net is_signal_inverted="no" name="Data_Bus[24]~60"/>
+            <net is_signal_inverted="no" name="Data_Bus[25]~59"/>
+            <net is_signal_inverted="no" name="Data_Bus[26]~62"/>
+            <net is_signal_inverted="no" name="Data_Bus[27]~61"/>
+            <net is_signal_inverted="no" name="Data_Bus[28]~70"/>
+            <net is_signal_inverted="no" name="Data_Bus[29]~68"/>
+            <net is_signal_inverted="no" name="Data_Bus[30]~69"/>
+            <net is_signal_inverted="no" name="Data_Bus[31]~67"/>
+          </bus>
+          <net is_signal_inverted="no" name="reset"/>
+        </setup_view>
+      </presentation>
+      <trigger attribute_mem_mode="false" gap_record="true" global_temp="1" name="trigger: 2022/06/29 14:26:10  #1" position="pre" power_up_trigger_mode="false" record_data_gap="true" segment_size="64" storage_mode="off" storage_qualifier_disabled="no" storage_qualifier_port_is_pin="true" storage_qualifier_port_name="auto_stp_external_storage_qualifier" storage_qualifier_port_tap_mode="classic" trigger_in="dont_care" trigger_out="active high" trigger_type="circular">
+        <power_up_trigger position="pre" storage_qualifier_disabled="no" trigger_in="dont_care" trigger_out="active high"/>
+        <events use_custom_flow_control="yes">
+          <level enabled="yes" name="condition1" type="basic">'reset' == rising edge
+            <power_up enabled="yes">
+            </power_up>
+            <op_node/>
+          </level>
+          <custom_flow_control>
+            <flow_expression><![CDATA[state ST1:
+trigger;]]>
+            </flow_expression>
+            <runtime_configurable comparison_operator="yes" counter_action="no" flag_action="no" logical_operator="yes" numerical_value="yes" state_transition="yes"/>
+            <power_up_flow_expression><![CDATA[state ST1:
+trigger;]]>
+            </power_up_flow_expression>
+          </custom_flow_control>
+        </events>
+        <storage_qualifier_events>
+          <transitional>000000000000000000000000000000000
+            <pwr_up_transitional>000000000000000000000000000000000</pwr_up_transitional>
+          </transitional>
+          <storage_qualifier_level type="basic">
+            <power_up>
+            </power_up>
+            <op_node/>
+          </storage_qualifier_level>
+          <storage_qualifier_level type="basic">
+            <power_up>
+            </power_up>
+            <op_node/>
+          </storage_qualifier_level>
+          <storage_qualifier_level type="basic">
+            <power_up>
+            </power_up>
+            <op_node/>
+          </storage_qualifier_level>
+        </storage_qualifier_events>
+      </trigger>
+    </signal_set>
+  </instance>
+  <mnemonics/>
+  <static_plugin_mnemonics/>
+</session>
