@@ -5,8 +5,8 @@ package aux_package is
 ----------------------------MIPS-------------------------------
 component MIPS IS
 	generic (
-		simulationMode: integer := 0; 				   -- 0 for synthesis, 1 for simulation mode
-		addressLength:	integer := 10 -2*simulationMode -- 10 for synthesis, 8 for simulation mode
+		simulationMode: integer := 0;  -- 0 for synthesis, 1 for simulation mode
+		addressLength:	integer := 10  -- 10 for synthesis, 8 for simulation mode
 	);
 	PORT( reset, clock					: IN 	STD_LOGIC; -- reset is opposite
 		-- Output important signals to pins for easy display in Simulator
@@ -74,6 +74,10 @@ component Idecode IS
 END component;
 ----------------------------Ifetch-------------------------------
 component Ifetch IS
+	generic(
+		addressLength:	integer := 10;  -- 10 for synthesis, 8 for simulation mode
+		simulationMode:	integer := 0	-- 0 for synthesis, 1 for simulation mode
+	);
 	PORT(	
 			SIGNAL clock, reset 	: IN 	STD_LOGIC;
 			SIGNAL Add_result 		: IN 	STD_LOGIC_VECTOR( 7 DOWNTO 0 ); -- branch address result

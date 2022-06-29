@@ -26,7 +26,7 @@ USE work.aux_package.all;
 ENTITY MIPS IS
 	generic (
 		simulationMode: integer := 0; 				   -- 0 for synthesis, 1 for simulation mode
-		addressLength:	integer := 10 -2*simulationMode -- 10 for synthesis, 8 for simulation mode
+		addressLength:	integer := 10 				   -- 10 for synthesis, 8 for simulation mode
 	);
 	PORT( reset, clock					: IN 	STD_LOGIC; -- reset is opposite
 		-- Output important signals to pins for easy display in Simulator
@@ -138,6 +138,9 @@ BEGIN
 					-- connect the 5 MIPS components   
 
   IFE : Ifetch
+  	generic map (addressLength   => addressLength,
+	simulationMode	=> simulationMode
+	)
 	PORT MAP (	Instruction 	=> Instruction,
     	    	PC_plus_4_out 	=> PC_plus_4,
 				Add_result 		=> Add_result,

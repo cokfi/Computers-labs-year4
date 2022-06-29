@@ -24,21 +24,26 @@ move    $s4,$zero # src line index
 move    $s5,$zero # offset
 move     $s6,$s1  # save begining of src
 iterations:
-addi $s6,$s6,16    # go to next line (move 4 elements)
-addi $s4,$s4,4    # update src index
+addi $s4,$s4,1    # update src index (first line is 1, last line is 4)
 lw   $t1,0($s6)   # load element from src
 sw   $t1,0($s2)      # save to dst 
 addi $s2,$s2,4        # increment dst pointer
 
-slt  $t3,$s3,$s4            # Check if the second is bigger than first one
-bne  $t3,$zero,end_of_line  # if $s4(index) is bigger than $s3(size of matrix) -> reached the end of line
+slt  $t3,$s4,$s7            # Check if the second is bigger than first one, true? set 1 to $t3
+beq  $t3,$zero,end_of_line  # if $s4(index) is equal to $s3(size of matrix) -> reached the end of line
+addi $s6,$s6,16    # go to next line (skip 4 elements)
+
 j		iterations		# jump to iterations (next iteration)
 
 end_of_line:
 
 
 move    $s4,$zero # src line index
-addi    $s5,$s5,1 # increment offset
+addi    $s5,$s5,4 # increment offset
 add     $s6, $s1,$s5  # add offset
-bne     $s5,$s7,iterations   # if not reached to end of matrix - continue iterations
+bne     $s5,$s3,iterations   # if not reached to end of matrix - continue iterations
+
+end: # infinite loop to keep cpu busy
+add	$zero,$zero,$zero
+j	end
 

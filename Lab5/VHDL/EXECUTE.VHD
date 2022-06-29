@@ -63,7 +63,7 @@ BEGIN
 -- operands assignment and mux
 -----------------------------------------------	
 	Ainput <= Read_data_1;
-	isALUoutputZero <= not(or(ALUpreliminaryOutput)) ; --elementwise nor
+	isALUoutputZero <= '1' when ALUpreliminaryOutput = x"00000000"  else '0' ; --elementwise nor changed because of quartus
 
 BinputMux:	Binput <= Read_data_2 when  ALUSrc = '0' 
   			ELSE  Sign_extend( 31 downto 0 ); -- immadiate or Lw (load word)
